@@ -17,8 +17,6 @@ namespace InteractiveDataDisplay.WPF
     [Description("Vertical or horizontal coordinate axis")]
     public class Axis : Panel
     {
-        private ILabelProvider labelProvider;
-        private TicksProvider ticksProvider;
         private Path majorTicksPath;
         private Path minorTicksPath;
 
@@ -50,10 +48,8 @@ namespace InteractiveDataDisplay.WPF
             BindingOperations.SetBinding(majorTicksPath, Path.StrokeProperty, new Binding("Foreground") { Source = this, Mode = BindingMode.TwoWay });
             BindingOperations.SetBinding(minorTicksPath, Path.StrokeProperty, new Binding("Foreground") { Source = this, Mode = BindingMode.TwoWay });
 
-            if (labelProvider == null)
-                this.labelProvider = new LabelProvider();
-            if (ticksProvider == null)
-                this.ticksProvider = new TicksProvider();
+            LabelProvider = new LabelProvider();
+            TicksProvider = new TicksProvider();
         }
 
         /// <summary>
@@ -64,8 +60,8 @@ namespace InteractiveDataDisplay.WPF
         public Axis(ILabelProvider labelProvider, TicksProvider ticksProvider)
             : this()
         {
-            this.labelProvider = labelProvider;
-            this.ticksProvider = ticksProvider;
+            LabelProvider = labelProvider;
+            TicksProvider = ticksProvider;
         }
 
         /// <summary>
@@ -195,6 +191,63 @@ namespace InteractiveDataDisplay.WPF
                 }));
 
         /// <summary>
+        /// Gets or sets <see cref="ILabelProvider"/> for an axis.
+        /// </summary>
+        /// <remarks>
+        /// The default provider is <see cref="LabelProvider"/>
+        /// LabelProvider is used 
+        /// </remarks>
+        [Description("Label provider for the Ticks")]
+        [Category("InteractiveDataDisplay")]
+        public ILabelProvider LabelProvider
+        {
+            get { return (ILabelProvider)GetValue(LabelProviderProperty); }
+            set { SetValue(LabelProviderProperty, value); }
+        }
+        /// <summary>
+        /// Identifies the <see cref="LabelProvider"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty LabelProviderProperty =
+            DependencyProperty.Register("LabelProvider", typeof(ILabelProvider), typeof(Axis), new PropertyMetadata(null,
+                (o, e) =>
+                {
+                    Axis axis = (Axis)o;
+                    if (axis != null)
+                    {
+                        axis.InvalidateMeasure();
+                    }
+                }));
+
+        /// <summary>
+        /// Gets or sets <see cref="TicksProvider"/> for an axis.
+        /// </summary>
+        /// <remarks>
+        /// The default provider is <see cref="TicksProvider"/>
+        /// TicksProvider is used 
+        /// </remarks>
+        [Description("Ticks provider for the Ticks")]
+        [Category("InteractiveDataDisplay")]
+        public TicksProvider TicksProvider
+        {
+            get { return (TicksProvider)GetValue(TicksProviderProperty); }
+            set { SetValue(TicksProviderProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TicksProvider"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty TicksProviderProperty =
+            DependencyProperty.Register("TicksProvider", typeof(TicksProvider), typeof(Axis), new PropertyMetadata(null,
+                (o, e) =>
+                {
+                    Axis axis = (Axis)o;
+                    if (axis != null)
+                    {
+                        axis.InvalidateMeasure();
+                    }
+                }));
+
+        /// <summary>
         /// Gets or sets the brush for labels and ticks of axis
         /// </summary>
         /// <remarks>The default foreground is black</remarks>
@@ -274,14 +327,14 @@ namespace InteractiveDataDisplay.WPF
             {
                 var t = new double[] { range.Min };
                 Ticks = t;
-                labels = labelProvider.GetLabels(t);
+                labels = LabelProvider.GetLabels(t);
                 return;
             }
 
             // Do first pass of ticks arrangement
-            ticksProvider.Range = range;
-            double[] ticks = ticksProvider.GetTicks();
-            labels = labelProvider.GetLabels(ticks);
+            TicksProvider.Range = range;
+            double[] ticks = TicksProvider.GetTicks();
+            labels = LabelProvider.GetLabels(ticks);
 
             TickChange result;
             if (ticks.Length > MaxTicks)
@@ -296,24 +349,24 @@ namespace InteractiveDataDisplay.WPF
             while (result != TickChange.OK && iterations++ < maxTickArrangeIterations)
             {
                 if (result == TickChange.Increase)
-                    ticksProvider.IncreaseTickCount();
+                    TicksProvider.IncreaseTickCount();
                 else
-                    ticksProvider.DecreaseTickCount();
-                double[] newTicks = ticksProvider.GetTicks();
+                    TicksProvider.DecreaseTickCount();
+                double[] newTicks = TicksProvider.GetTicks();
                 if (newTicks.Length > MaxTicks && result == TickChange.Increase)
                 {
-                    ticksProvider.DecreaseTickCount(); // Step back and stop to not get more than MaxTicks
+                    TicksProvider.DecreaseTickCount(); // Step back and stop to not get more than MaxTicks
                     break;
                 }
                 else if (newTicks.Length < 2 && result == TickChange.Decrease)
                 {
-                    ticksProvider.IncreaseTickCount(); // Step back and stop to not get less than 2
+                    TicksProvider.IncreaseTickCount(); // Step back and stop to not get less than 2
                     break;
                 }
                 var prevTicks = ticks;
                 ticks = newTicks;
                 var prevLabels = labels;
-                labels = labelProvider.GetLabels(newTicks);
+                labels = LabelProvider.GetLabels(newTicks);
                 var newResult = CheckLabelsArrangement(axisSize, labels, ticks);
                 if (newResult == result) // Continue in the same direction
                 {
@@ -329,7 +382,7 @@ namespace InteractiveDataDisplay.WPF
                             {
                                 ticks = prevTicks;
                                 labels = prevLabels;
-                                ticksProvider.IncreaseTickCount();
+                                TicksProvider.IncreaseTickCount();
                             }
                         }
                         else
@@ -338,7 +391,7 @@ namespace InteractiveDataDisplay.WPF
                             {
                                 ticks = prevTicks;
                                 labels = prevLabels;
-                                ticksProvider.DecreaseTickCount();
+                                TicksProvider.DecreaseTickCount();
                             }
                         }
                         break;
@@ -395,7 +448,7 @@ namespace InteractiveDataDisplay.WPF
 
                 if (drawMinorTicks)
                 {
-                    double[] minorTicks = ticksProvider.GetMinorTicks(Range);
+                    double[] minorTicks = TicksProvider.GetMinorTicks(Range);
                     if (minorTicks != null)
                     {
                         for (int j = 0; j < minorTicks.Length; j++)

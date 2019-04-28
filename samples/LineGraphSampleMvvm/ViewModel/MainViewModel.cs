@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using InteractiveDataDisplay.WPF;
 
 namespace LineGraphSampleMvvm.ViewModel
 {
@@ -18,6 +19,8 @@ namespace LineGraphSampleMvvm.ViewModel
     {
         private ObservableCollection<LineGraphViewModel> _lineGraphViewModels;
         private string _title;
+        private TicksProvider _ticksProviderForXAxis;
+        private bool _isXAxisReversed;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -46,12 +49,22 @@ namespace LineGraphSampleMvvm.ViewModel
             LineGraphViewModels = new ObservableCollection<LineGraphViewModel>(lineGraphVms);
 
             Title = "Line graph legnend sample MVVM";
+
+            var ticksProvider = new TicksProvider();
+            ticksProvider.MinorProvider.TicksCount = 4;
+            TicksProviderForXAxis = ticksProvider;
+
+            IsXAxisReversed = true;
         }
+
+        public bool IsXAxisReversed { get => _isXAxisReversed; set => Set(ref _isXAxisReversed, value); }
 
         /// <summary>
         /// The collection of ViewModels for the LineGraphs.
         /// </summary>
         public ObservableCollection<LineGraphViewModel> LineGraphViewModels { get => _lineGraphViewModels; set => Set(ref _lineGraphViewModels, value); }
+
+        public TicksProvider TicksProviderForXAxis { get => _ticksProviderForXAxis; set => Set(ref _ticksProviderForXAxis, value); }
 
         /// <summary>
         /// The title
