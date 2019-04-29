@@ -38,7 +38,6 @@ namespace InteractiveDataDisplay.WPF
         public Axis()
         {
             DataTransform = new IdentityDataTransform();
-            Ticks = new double[0];
 
             majorTicksPath = new Path();
             minorTicksPath = new Path();
@@ -47,9 +46,6 @@ namespace InteractiveDataDisplay.WPF
 
             BindingOperations.SetBinding(majorTicksPath, Path.StrokeProperty, new Binding("Foreground") { Source = this, Mode = BindingMode.TwoWay });
             BindingOperations.SetBinding(minorTicksPath, Path.StrokeProperty, new Binding("Foreground") { Source = this, Mode = BindingMode.TwoWay });
-
-            LabelProvider = new LabelProvider();
-            TicksProvider = new TicksProvider();
         }
 
         /// <summary>
@@ -208,7 +204,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="LabelProvider"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty LabelProviderProperty =
-            DependencyProperty.Register("LabelProvider", typeof(ILabelProvider), typeof(Axis), new PropertyMetadata(null,
+            DependencyProperty.Register("LabelProvider", typeof(ILabelProvider), typeof(Axis), new PropertyMetadata(new LabelProvider(),
                 (o, e) =>
                 {
                     Axis axis = (Axis)o;
@@ -237,7 +233,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="TicksProvider"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty TicksProviderProperty =
-            DependencyProperty.Register("TicksProvider", typeof(TicksProvider), typeof(Axis), new PropertyMetadata(null,
+            DependencyProperty.Register("TicksProvider", typeof(TicksProvider), typeof(Axis), new PropertyMetadata(new TicksProvider(),
                 (o, e) =>
                 {
                     Axis axis = (Axis)o;

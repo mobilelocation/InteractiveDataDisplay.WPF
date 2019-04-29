@@ -188,6 +188,66 @@ namespace InteractiveDataDisplay.WPF
                         plot.InvalidateAxis();
                     }
                 }));
+
+        /// <summary>
+        /// Gets or sets <see cref="ILabelProvider"/> for an axis.
+        /// </summary>
+        /// <remarks>
+        /// The default provider is <see cref="LabelProvider"/>
+        /// LabelProvider is used 
+        /// </remarks>
+        [Description("Label provider for the Ticks")]
+        [Category("InteractiveDataDisplay")]
+        public ILabelProvider LabelProvider
+        {
+            get { return (ILabelProvider)GetValue(LabelProviderProperty); }
+            set { SetValue(LabelProviderProperty, value); }
+        }
+        /// <summary>
+        /// Identifies the <see cref="LabelProvider"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty LabelProviderProperty =
+            DependencyProperty.Register("LabelProvider", typeof(ILabelProvider), typeof(PlotAxis), new PropertyMetadata(new LabelProvider(),
+                (o, e) =>
+                {
+                    PlotAxis plot = o as PlotAxis;
+                    if (plot != null)
+                    {
+                        plot.InvalidateAxis();
+                    }
+                }));
+
+        /// <summary>
+        /// Gets or sets <see cref="TicksProvider"/> for an axis.
+        /// </summary>
+        /// <remarks>
+        /// The default provider is <see cref="TicksProvider"/>
+        /// TicksProvider is used 
+        /// </remarks>
+        [Description("Ticks provider for the Ticks")]
+        [Category("InteractiveDataDisplay")]
+        public TicksProvider TicksProvider
+        {
+            get { return (TicksProvider)GetValue(TicksProviderProperty); }
+            set
+            {
+                SetValue(TicksProviderProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TicksProvider"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty TicksProviderProperty =
+            DependencyProperty.Register("TicksProvider", typeof(TicksProvider), typeof(PlotAxis), new PropertyMetadata(new TicksProvider(),
+                (o, e) =>
+                {
+                    PlotAxis plot = o as PlotAxis;
+                    if (plot != null)
+                    {
+                        plot.InvalidateAxis();
+                    }
+                }));
     }
 }
 

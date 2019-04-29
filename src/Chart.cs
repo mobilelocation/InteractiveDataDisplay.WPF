@@ -328,5 +328,89 @@ namespace InteractiveDataDisplay.WPF
             set { SetValue(IsYAxisReversedProperty, value); }
         }
 
-    }       
+        /// <summary>
+        /// Gets or sets <see cref="TicksProvider"/> for X axis.
+        /// </summary>
+        /// <remarks>
+        /// The default provider is <see cref="TicksProvider"/>
+        /// TicksProvider is used 
+        /// </remarks>
+        [Description("Ticks provider for the Ticks")]
+        [Category("InteractiveDataDisplay")]
+        public TicksProvider XAxisTicksProvider
+        {
+            get { return (TicksProvider)GetValue(XAxisTicksProviderProperty); }
+            set { SetValue(XAxisTicksProviderProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TicksProvider"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty XAxisTicksProviderProperty =
+            DependencyProperty.Register("XAxisTicksProvider", typeof(TicksProvider), typeof(Chart), new PropertyMetadata(new TicksProvider()));
+
+        /// <summary>
+        /// Gets or sets <see cref="TicksProvider"/> for Y axis.
+        /// </summary>
+        /// <remarks>
+        /// The default provider is <see cref="TicksProvider"/>
+        /// TicksProvider is used 
+        /// </remarks>
+        [Description("Ticks provider for the Ticks")]
+        [Category("InteractiveDataDisplay")]
+        public TicksProvider YAxisTicksProvider
+        {
+            get { return (TicksProvider)GetValue(YAxisTicksProviderProperty); }
+            set { SetValue(YAxisTicksProviderProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TicksProvider"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty YAxisTicksProviderProperty =
+            DependencyProperty.Register("YAxisTicksProvider", typeof(TicksProvider), typeof(Chart), new PropertyMetadata(new TicksProvider()));
+
+        /// <summary>
+        /// Gets or sets <see cref="LabelProvider"/> for X axis.
+        /// </summary>
+        /// <remarks>
+        /// The default provider is <see cref="LabelProvider"/>
+        /// LabelProvider is used 
+        /// </remarks>
+        [Description("Label provider for the Ticks")]
+        [Category("InteractiveDataDisplay")]
+        public ILabelProvider XAxisLabelProvider
+        {
+            get { return (ILabelProvider)GetValue(XAxisLabelProviderProperty); }
+            set { SetValue(XAxisLabelProviderProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TicksProvider"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty XAxisLabelProviderProperty =
+            DependencyProperty.Register("XAxisLabelProvider", typeof(ILabelProvider), typeof(Chart), new PropertyMetadata(new LabelProvider()));
+
+        /// <summary>
+        /// Gets or sets <see cref="LabelProvider"/> for Y axis.
+        /// </summary>
+        /// <remarks>
+        /// The default provider is <see cref="LabelProvider"/>
+        /// LabelProvider is used 
+        /// </remarks>
+        [Description("Label provider for the Ticks")]
+        [Category("InteractiveDataDisplay")]
+        public ILabelProvider YAxisLabelProvider
+        {
+            get { return (ILabelProvider)GetValue(YAxisLabelProviderProperty); }
+            set { SetValue(YAxisLabelProviderProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TicksProvider"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty YAxisLabelProviderProperty =
+            DependencyProperty.Register("YAxisLabelProvider", typeof(ILabelProvider), typeof(Chart), new PropertyMetadata(new LabelProvider()));
+
+    }
 }

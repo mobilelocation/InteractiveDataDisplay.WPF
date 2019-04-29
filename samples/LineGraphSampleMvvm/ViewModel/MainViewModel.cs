@@ -19,7 +19,7 @@ namespace LineGraphSampleMvvm.ViewModel
     {
         private ObservableCollection<LineGraphViewModel> _lineGraphViewModels;
         private string _title;
-        private TicksProvider _ticksProviderForXAxis;
+        private TicksProvider _xAxisTicksProvider;
         private bool _isXAxisReversed;
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace LineGraphSampleMvvm.ViewModel
 
             var ticksProvider = new TicksProvider();
             ticksProvider.MinorProvider.TicksCount = 4;
-            TicksProviderForXAxis = ticksProvider;
+            XAxisTicksProvider = ticksProvider;
 
             IsXAxisReversed = true;
         }
@@ -64,7 +64,7 @@ namespace LineGraphSampleMvvm.ViewModel
         /// </summary>
         public ObservableCollection<LineGraphViewModel> LineGraphViewModels { get => _lineGraphViewModels; set => Set(ref _lineGraphViewModels, value); }
 
-        public TicksProvider TicksProviderForXAxis { get => _ticksProviderForXAxis; set => Set(ref _ticksProviderForXAxis, value); }
+        public TicksProvider XAxisTicksProvider { get => _xAxisTicksProvider; set => Set(ref _xAxisTicksProvider, value); }
 
         /// <summary>
         /// The title
