@@ -26,7 +26,8 @@ namespace InteractiveDataDisplay.WPF
         private int maxTicks = 20;
         private const double increaseRatio = 8.0;
         private const double decreaseRatio = 8.0;
-        private const double tickLength = 10;
+        private const double DefaultTickLength = 10;
+        private const double DefaultTickWidth = 1;
 
         private bool drawTicks = true;
         private bool drawMinorTicks = true;
@@ -46,6 +47,9 @@ namespace InteractiveDataDisplay.WPF
 
             BindingOperations.SetBinding(majorTicksPath, Path.StrokeProperty, new Binding("Foreground") { Source = this, Mode = BindingMode.TwoWay });
             BindingOperations.SetBinding(minorTicksPath, Path.StrokeProperty, new Binding("Foreground") { Source = this, Mode = BindingMode.TwoWay });
+
+            BindingOperations.SetBinding(majorTicksPath, Path.StrokeThicknessProperty, new Binding("TickWidth") { Source = this, Mode = BindingMode.TwoWay });
+            BindingOperations.SetBinding(minorTicksPath, Path.StrokeThicknessProperty, new Binding("TickWidth") { Source = this, Mode = BindingMode.TwoWay });
         }
 
         /// <summary>
@@ -280,6 +284,58 @@ namespace InteractiveDataDisplay.WPF
         }
 
         /// <summary>
+        /// Gets or sets the Tick length.
+        /// </summary>
+        /// <remarks>The defalut value is 10</remarks>
+        [Category("InteractiveDataDisplay")]
+        [Description("The length of major ticks")]
+        public double TickLength
+        {
+            get { return (double)GetValue(TickLengthProperty); }
+            set { SetValue(TickLengthProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TickLength"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty TickLengthProperty =
+            DependencyProperty.Register("TickLength", typeof(double), typeof(Axis), new PropertyMetadata(DefaultTickLength,
+                (o, e) =>
+                {
+                    Axis axis = (Axis)o;
+                    if (axis != null)
+                    {
+                        axis.InvalidateMeasure();
+                    }
+                }));
+
+        /// <summary>
+        /// Gets or sets the Tick width.
+        /// </summary>
+        /// <remarks>The defalut value is 10</remarks>
+        [Category("InteractiveDataDisplay")]
+        [Description("The width of major ticks")]
+        public double TickWidth
+        {
+            get { return (double)GetValue(TickWidthProperty); }
+            set { SetValue(TickWidthProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TickWidth"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty TickWidthProperty =
+            DependencyProperty.Register("TickWidth", typeof(double), typeof(Axis), new PropertyMetadata(DefaultTickWidth,
+                (o, e) =>
+                {
+                    Axis axis = (Axis)o;
+                    if (axis != null)
+                    {
+                        axis.InvalidateMeasure();
+                    }
+                }));
+
+        /// <summary>
         /// Gets or sets a value indicating whether the ticks should be rendered or not.
         /// </summary>
         /// <remarks>The default value is true.</remarks>
@@ -422,12 +478,12 @@ namespace InteractiveDataDisplay.WPF
                     if (IsHorizontal)
                     {
                         line.StartPoint = new Point(GetCoordinateFromTick(cTicks[i], axisSize), 0);
-                        line.EndPoint = new Point(GetCoordinateFromTick(cTicks[i], axisSize), tickLength);
+                        line.EndPoint = new Point(GetCoordinateFromTick(cTicks[i], axisSize), TickLength);
                     }
                     else
                     {
                         line.StartPoint = new Point(0, GetCoordinateFromTick(cTicks[i], axisSize));
-                        line.EndPoint = new Point(tickLength, GetCoordinateFromTick(cTicks[i], axisSize));
+                        line.EndPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[i], axisSize));
                     }
 
                     if (labels[i] is TextBlock)
@@ -440,6 +496,29 @@ namespace InteractiveDataDisplay.WPF
                     }
 
                     Children.Add(labels[i]);
+                }
+
+                LineGeometry axis_line = new LineGeometry();
+                majorTicksGeometry.Children.Add(axis_line);
+
+                switch(AxisOrientation)
+                {
+                    case AxisOrientation.Top:
+                        axis_line.StartPoint = new Point(GetCoordinateFromTick(cTicks[0], axisSize), TickLength);
+                        axis_line.EndPoint = new Point(GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize), TickLength);
+                        break;
+                    case AxisOrientation.Bottom:
+                        axis_line.StartPoint = new Point(GetCoordinateFromTick(cTicks[0], axisSize), 0);
+                        axis_line.EndPoint = new Point(GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize), 0);
+                        break;
+                    case AxisOrientation.Left:
+                        axis_line.StartPoint = new Point(0, GetCoordinateFromTick(cTicks[0], axisSize));
+                        axis_line.EndPoint = new Point(0, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
+                        break;
+                    case AxisOrientation.Right:
+                        axis_line.StartPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[0], axisSize));
+                        axis_line.EndPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
+                        break;
                 }
 
                 if (drawMinorTicks)
@@ -455,12 +534,12 @@ namespace InteractiveDataDisplay.WPF
                             if (IsHorizontal)
                             {
                                 line.StartPoint = new Point(GetCoordinateFromTick(minorTicks[j], axisSize), 0);
-                                line.EndPoint = new Point(GetCoordinateFromTick(minorTicks[j], axisSize), tickLength / 2.0);
+                                line.EndPoint = new Point(GetCoordinateFromTick(minorTicks[j], axisSize), TickLength / 2.0);
                             }
                             else
                             {
                                 line.StartPoint = new Point(0, GetCoordinateFromTick(minorTicks[j], axisSize));
-                                line.EndPoint = new Point(tickLength / 2.0, GetCoordinateFromTick(minorTicks[j], axisSize));
+                                line.EndPoint = new Point(TickLength / 2.0, GetCoordinateFromTick(minorTicks[j], axisSize));
                             }
                         }
                     }
@@ -491,21 +570,21 @@ namespace InteractiveDataDisplay.WPF
             switch (AxisOrientation)
             {
                 case AxisOrientation.Top:
-                    majorTicksPath.Arrange(new Rect(0, finalSize.Height - tickLength, finalSize.Width, tickLength));
-                    minorTicksPath.Arrange(new Rect(0, finalSize.Height - tickLength / 2.0, finalSize.Width, tickLength / 2.0));
+                    majorTicksPath.Arrange(new Rect(0, finalSize.Height - TickLength, finalSize.Width + TickWidth, TickLength));
+                    minorTicksPath.Arrange(new Rect(0, finalSize.Height - TickLength / 2.0, finalSize.Width + TickWidth, TickLength / 2.0));
                     break;
                 case AxisOrientation.Bottom:
-                    majorTicksPath.Arrange(new Rect(0, 0, finalSize.Width, tickLength));
-                    minorTicksPath.Arrange(new Rect(0, 0, finalSize.Width, tickLength / 2.0));
+                    majorTicksPath.Arrange(new Rect(0, 0, finalSize.Width + TickWidth, TickLength));
+                    minorTicksPath.Arrange(new Rect(0, 0, finalSize.Width + TickWidth, TickLength / 2.0));
                     break;
                 case AxisOrientation.Right:
-                    majorTicksPath.Arrange(new Rect(0, 0, tickLength, finalSize.Height));
-                    minorTicksPath.Arrange(new Rect(0, 0, tickLength / 2.0, finalSize.Height));
+                    majorTicksPath.Arrange(new Rect(0, 0, TickLength, finalSize.Height + TickWidth));
+                    minorTicksPath.Arrange(new Rect(0, 0, TickLength / 2.0, finalSize.Height + TickWidth));
                     break;
                 case AxisOrientation.Left:
-                    majorTicksPath.Arrange(new Rect(Math.Max(0, finalSize.Width - tickLength), 0, tickLength, finalSize.Height));
-                    minorTicksPath.Arrange(new Rect(Math.Max(0, finalSize.Width - tickLength / 2.0), 0, tickLength / 2.0, finalSize.Height));
-                    labelArrangeOriginX = finalSize.Width - tickLength - CalculateMaxLabelWidth();
+                    majorTicksPath.Arrange(new Rect(Math.Max(0, finalSize.Width - TickLength), 0, TickLength, finalSize.Height + TickWidth));
+                    minorTicksPath.Arrange(new Rect(Math.Max(0, finalSize.Width - TickLength / 2.0), 0, TickLength / 2.0, finalSize.Height + TickWidth));
+                    labelArrangeOriginX = finalSize.Width - TickLength - CalculateMaxLabelWidth();
                     break;
             }
 
