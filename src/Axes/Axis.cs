@@ -85,7 +85,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="Ticks"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty TicksProperty =
-            DependencyProperty.Register("Ticks", typeof(IEnumerable<double>), typeof(Axis), new PropertyMetadata(new double[0], InvalidateMeasure));
+            DependencyProperty.Register("Ticks", typeof(IEnumerable<double>), typeof(Axis), new PropertyMetadata(null, InvalidateMeasure));
 
         /// <summary>
         /// Gets or sets the range of values on axis in plot coordinates.
@@ -463,7 +463,7 @@ namespace InteractiveDataDisplay.WPF
 
                 }
 
-                double []ticks = Ticks == null ? candidate_ticks : Ticks.ToArray();
+                double []ticks = IsNullOrEmpty(Ticks) ? candidate_ticks : Ticks.ToArray();
                 labels = LabelProvider.GetLabels(ticks);
                 for (int i = 0; i < labels.Length; i++)
                 { 
@@ -493,12 +493,12 @@ namespace InteractiveDataDisplay.WPF
                         axis_line.EndPoint = new Point(GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize), 0);
                         break;
                     case AxisOrientation.Left:
-                        axis_line.StartPoint = new Point(0, GetCoordinateFromTick(cTicks[0], axisSize));
-                        axis_line.EndPoint = new Point(0, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
-                        break;
-                    case AxisOrientation.Right:
                         axis_line.StartPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[0], axisSize));
                         axis_line.EndPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
+                        break;
+                    case AxisOrientation.Right:
+                        axis_line.StartPoint = new Point(0, GetCoordinateFromTick(cTicks[0], axisSize));
+                        axis_line.EndPoint = new Point(0, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
                         break;
                 }
 
@@ -596,7 +596,7 @@ namespace InteractiveDataDisplay.WPF
             ClearLabels();
             CreateTicks(effectiveSize);
 
-            double[] cTicks = Ticks != null? Ticks.ToArray() : candidate_ticks;
+            double[] cTicks = IsNullOrEmpty(Ticks) ? candidate_ticks: Ticks.ToArray();
             DrawCanvas(effectiveSize);
 
             foreach (UIElement child in Children)
@@ -752,6 +752,11 @@ namespace InteractiveDataDisplay.WPF
             {
                 return (AxisOrientation == AxisOrientation.Bottom || AxisOrientation == AxisOrientation.Top);
             }
+        }
+
+        private static bool IsNullOrEmpty(IEnumerable<double> ticks)
+        {
+            return ticks == null || ticks.Count() == 0;
         }
 
         private static void InvalidateMeasure(DependencyObject o, DependencyPropertyChangedEventArgs e)
