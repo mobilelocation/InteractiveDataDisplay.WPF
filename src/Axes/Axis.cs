@@ -21,6 +21,8 @@ namespace InteractiveDataDisplay.WPF
         private Path minorTicksPath;
 
         private FrameworkElement[] labels;
+        private FrameworkElement[] candidate_tick_labels;
+        private double[] candidate_ticks;
 
         private const int maxTickArrangeIterations = 12;
         private int maxTicks = 20;
@@ -314,15 +316,15 @@ namespace InteractiveDataDisplay.WPF
             if (range.IsPoint)
             {
                 var t = new double[] { range.Min };
-                Ticks = t;
-                labels = LabelProvider.GetLabels(t);
+                candidate_ticks = t;
+                candidate_tick_labels = LabelProvider.GetLabels(t);
                 return;
             }
 
             // Do first pass of ticks arrangement
             TicksProvider.Range = range;
             double[] ticks = TicksProvider.GetTicks();
-            labels = LabelProvider.GetLabels(ticks);
+            candidate_tick_labels = LabelProvider.GetLabels(ticks);
 
             TickChange result;
             if (ticks.Length > MaxTicks)
@@ -330,7 +332,7 @@ namespace InteractiveDataDisplay.WPF
             else if (ticks.Length < 2)
                 result = TickChange.Increase;
             else
-                result = CheckLabelsArrangement(axisSize, labels, ticks);
+                result = CheckLabelsArrangement(axisSize, candidate_tick_labels, ticks);
 
             int iterations = 0;
             int prevLength = ticks.Length;
@@ -353,9 +355,9 @@ namespace InteractiveDataDisplay.WPF
                 }
                 var prevTicks = ticks;
                 ticks = newTicks;
-                var prevLabels = labels;
-                labels = LabelProvider.GetLabels(newTicks);
-                var newResult = CheckLabelsArrangement(axisSize, labels, ticks);
+                var prevLabels = candidate_tick_labels;
+                candidate_tick_labels = LabelProvider.GetLabels(newTicks);
+                var newResult = CheckLabelsArrangement(axisSize, candidate_tick_labels, ticks);
                 if (newResult == result) // Continue in the same direction
                 {
                     prevLength = newTicks.Length;
@@ -369,7 +371,7 @@ namespace InteractiveDataDisplay.WPF
                             if (prevLength < MaxTicks)
                             {
                                 ticks = prevTicks;
-                                labels = prevLabels;
+                                candidate_tick_labels = prevLabels;
                                 TicksProvider.IncreaseTickCount();
                             }
                         }
@@ -378,7 +380,7 @@ namespace InteractiveDataDisplay.WPF
                             if (prevLength >= 2)
                             {
                                 ticks = prevTicks;
-                                labels = prevLabels;
+                                candidate_tick_labels = prevLabels;
                                 TicksProvider.DecreaseTickCount();
                             }
                         }
@@ -388,16 +390,17 @@ namespace InteractiveDataDisplay.WPF
                 }
             }
 
-            Ticks = ticks;
+            candidate_ticks = ticks;
         }
 
-        private void DrawCanvas(Size axisSize, double[] cTicks)
+        private void DrawCanvas(Size axisSize)
         {
             double length = IsHorizontal ? axisSize.Width : axisSize.Height;
 
             GeometryGroup majorTicksGeometry = new GeometryGroup();
             GeometryGroup minorTicksGeometry = new GeometryGroup();
 
+            var cTicks = candidate_ticks;
             if (!Double.IsNaN(length) && length != 0)
             {
                 int start = 0;
@@ -422,6 +425,12 @@ namespace InteractiveDataDisplay.WPF
                         line.EndPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[i], axisSize));
                     }
 
+                }
+
+                double []ticks = Ticks == null ? candidate_ticks : Ticks.ToArray();
+                labels = LabelProvider.GetLabels(ticks);
+                for (int i = 0; i < labels.Length; i++)
+                { 
                     if (labels[i] is TextBlock)
                     {
                         (labels[i] as TextBlock).Foreground = Foreground;
@@ -551,8 +560,8 @@ namespace InteractiveDataDisplay.WPF
             ClearLabels();
             CreateTicks(effectiveSize);
 
-            double[] cTicks = Ticks.ToArray();
-            DrawCanvas(effectiveSize, cTicks);
+            double[] cTicks = Ticks != null? Ticks.ToArray() : candidate_ticks;
+            DrawCanvas(effectiveSize);
 
             foreach (UIElement child in Children)
             {

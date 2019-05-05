@@ -2,7 +2,7 @@
 {
     public interface ITicksProvider
     {
-        MinorTicksProvider MinorProvider { get; set; }
+        IMinorTicksProvider MinorProvider { get; set; }
 
         Range Range { get; set; }
 

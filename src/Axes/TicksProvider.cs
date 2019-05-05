@@ -21,13 +21,13 @@ namespace InteractiveDataDisplay.WPF
         /// </summary>
         public TicksProvider(IMinorTicksProvider minorTicksProvider = null)
         {
-            MinorProvider = new MinorTicksProvider();
+            MinorProvider = minorTicksProvider == null? new MinorTicksProvider() : minorTicksProvider;
         }
 
         /// <summary>
         /// Gets the <see cref="MinorTicksProvider"/>.
         /// </summary>
-        public MinorTicksProvider MinorProvider { get; set; }
+        public IMinorTicksProvider MinorProvider { get; set; }
 
         /// <summary>
         /// Gets or sets the range of axis.
