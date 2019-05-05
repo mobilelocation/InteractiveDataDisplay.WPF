@@ -30,6 +30,7 @@ namespace InteractiveDataDisplay.WPF
         private const double decreaseRatio = 8.0;
         private const double DefaultTickLength = 10;
         private const double DefaultTickWidth = 1;
+        private const double DefaultLabelOffset = 5;
 
         private bool drawTicks = true;
         private bool drawMinorTicks = true;
@@ -238,6 +239,25 @@ namespace InteractiveDataDisplay.WPF
         }
 
         /// <summary>
+        /// The offset between label and tick.
+        /// </summary>
+        /// <remarks>The defalut value is 5</remarks>
+        [Category("InteractiveDataDisplay")]
+        [Description("The offset between label and axis")]
+        public double LabelOffset
+        {
+            get { return (double)GetValue(LabelOffsetProperty); }
+            set { SetValue(LabelOffsetProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="LabelOffset"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty LabelOffsetProperty =
+            DependencyProperty.Register("LabelOffset", typeof(double), typeof(Axis), new PropertyMetadata(DefaultLabelOffset, InvalidateMeasure));
+
+
+        /// <summary>
         /// Gets or sets the Tick length.
         /// </summary>
         /// <remarks>The defalut value is 10</remarks>
@@ -254,6 +274,24 @@ namespace InteractiveDataDisplay.WPF
         /// </summary>
         public static readonly DependencyProperty TickLengthProperty =
             DependencyProperty.Register("TickLength", typeof(double), typeof(Axis), new PropertyMetadata(DefaultTickLength, InvalidateMeasure));
+
+        /// <summary>
+        /// Gets or sets the Minor Tick length.
+        /// </summary>
+        /// <remarks>The defalut value is 5</remarks>
+        [Category("InteractiveDataDisplay")]
+        [Description("The length of minor ticks")]
+        public double MinorTickLength
+        {
+            get { return (double)GetValue(MinorTickLengthProperty); }
+            set { SetValue(MinorTickLengthProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TickLength"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty MinorTickLengthProperty =
+            DependencyProperty.Register("MinorTickLength", typeof(double), typeof(Axis), new PropertyMetadata(DefaultTickLength / 2.0, InvalidateMeasure));
 
         /// <summary>
         /// Gets or sets the Tick width.
@@ -323,19 +361,19 @@ namespace InteractiveDataDisplay.WPF
 
             // Do first pass of ticks arrangement
             TicksProvider.Range = range;
-            double[] ticks = TicksProvider.GetTicks();
-            candidate_tick_labels = LabelProvider.GetLabels(ticks);
+            candidate_ticks = TicksProvider.GetTicks();
+            candidate_tick_labels = LabelProvider.GetLabels(candidate_ticks);
 
             TickChange result;
-            if (ticks.Length > MaxTicks)
+            if (candidate_ticks.Length > MaxTicks)
                 result = TickChange.Decrease;
-            else if (ticks.Length < 2)
+            else if (candidate_ticks.Length < 2)
                 result = TickChange.Increase;
             else
-                result = CheckLabelsArrangement(axisSize, candidate_tick_labels, ticks);
+                result = CheckLabelsArrangement(axisSize, candidate_tick_labels, candidate_ticks);
 
             int iterations = 0;
-            int prevLength = ticks.Length;
+            int prevLength = candidate_ticks.Length;
             while (result != TickChange.OK && iterations++ < maxTickArrangeIterations)
             {
                 if (result == TickChange.Increase)
@@ -353,11 +391,11 @@ namespace InteractiveDataDisplay.WPF
                     TicksProvider.IncreaseTickCount(); // Step back and stop to not get less than 2
                     break;
                 }
-                var prevTicks = ticks;
-                ticks = newTicks;
+                var prevTicks = candidate_ticks;
+                candidate_ticks = newTicks;
                 var prevLabels = candidate_tick_labels;
                 candidate_tick_labels = LabelProvider.GetLabels(newTicks);
-                var newResult = CheckLabelsArrangement(axisSize, candidate_tick_labels, ticks);
+                var newResult = CheckLabelsArrangement(axisSize, candidate_tick_labels, candidate_ticks);
                 if (newResult == result) // Continue in the same direction
                 {
                     prevLength = newTicks.Length;
@@ -370,7 +408,7 @@ namespace InteractiveDataDisplay.WPF
                         {
                             if (prevLength < MaxTicks)
                             {
-                                ticks = prevTicks;
+                                candidate_ticks = prevTicks;
                                 candidate_tick_labels = prevLabels;
                                 TicksProvider.IncreaseTickCount();
                             }
@@ -379,7 +417,7 @@ namespace InteractiveDataDisplay.WPF
                         {
                             if (prevLength >= 2)
                             {
-                                ticks = prevTicks;
+                                candidate_ticks = prevTicks;
                                 candidate_tick_labels = prevLabels;
                                 TicksProvider.DecreaseTickCount();
                             }
@@ -389,8 +427,6 @@ namespace InteractiveDataDisplay.WPF
                     break;
                 }
             }
-
-            candidate_ticks = ticks;
         }
 
         private void DrawCanvas(Size axisSize)
@@ -479,12 +515,12 @@ namespace InteractiveDataDisplay.WPF
                             if (IsHorizontal)
                             {
                                 line.StartPoint = new Point(GetCoordinateFromTick(minorTicks[j], axisSize), 0);
-                                line.EndPoint = new Point(GetCoordinateFromTick(minorTicks[j], axisSize), TickLength / 2.0);
+                                line.EndPoint = new Point(GetCoordinateFromTick(minorTicks[j], axisSize), MinorTickLength);
                             }
                             else
                             {
                                 line.StartPoint = new Point(0, GetCoordinateFromTick(minorTicks[j], axisSize));
-                                line.EndPoint = new Point(TickLength / 2.0, GetCoordinateFromTick(minorTicks[j], axisSize));
+                                line.EndPoint = new Point(MinorTickLength, GetCoordinateFromTick(minorTicks[j], axisSize));
                             }
                         }
                     }
@@ -516,19 +552,19 @@ namespace InteractiveDataDisplay.WPF
             {
                 case AxisOrientation.Top:
                     majorTicksPath.Arrange(new Rect(0, finalSize.Height - TickLength, finalSize.Width + TickWidth, TickLength));
-                    minorTicksPath.Arrange(new Rect(0, finalSize.Height - TickLength / 2.0, finalSize.Width + TickWidth, TickLength / 2.0));
+                    minorTicksPath.Arrange(new Rect(0, finalSize.Height - MinorTickLength, finalSize.Width + TickWidth, MinorTickLength));
                     break;
                 case AxisOrientation.Bottom:
                     majorTicksPath.Arrange(new Rect(0, 0, finalSize.Width + TickWidth, TickLength));
-                    minorTicksPath.Arrange(new Rect(0, 0, finalSize.Width + TickWidth, TickLength / 2.0));
+                    minorTicksPath.Arrange(new Rect(0, 0, finalSize.Width + TickWidth, MinorTickLength));
                     break;
                 case AxisOrientation.Right:
                     majorTicksPath.Arrange(new Rect(0, 0, TickLength, finalSize.Height + TickWidth));
-                    minorTicksPath.Arrange(new Rect(0, 0, TickLength / 2.0, finalSize.Height + TickWidth));
+                    minorTicksPath.Arrange(new Rect(0, 0, MinorTickLength, finalSize.Height + TickWidth));
                     break;
                 case AxisOrientation.Left:
                     majorTicksPath.Arrange(new Rect(Math.Max(0, finalSize.Width - TickLength), 0, TickLength, finalSize.Height + TickWidth));
-                    minorTicksPath.Arrange(new Rect(Math.Max(0, finalSize.Width - TickLength / 2.0), 0, TickLength / 2.0, finalSize.Height + TickWidth));
+                    minorTicksPath.Arrange(new Rect(Math.Max(0, finalSize.Width - MinorTickLength), 0, MinorTickLength, finalSize.Height + TickWidth));
                     labelArrangeOriginX = finalSize.Width - TickLength - CalculateMaxLabelWidth();
                     break;
             }
@@ -589,13 +625,13 @@ namespace InteractiveDataDisplay.WPF
                 case AxisOrientation.Right:
                     for (int i = 0; i < labels.Length; i++)
                     {
-                        labels[i].RenderTransform = new TranslateTransform { X = majorTicksPath.DesiredSize.Width, Y = GetCoordinateFromTick(cTicks[i], effectiveSize) - labels[i].DesiredSize.Height / 2 };
+                        labels[i].RenderTransform = new TranslateTransform { X = majorTicksPath.DesiredSize.Width + LabelOffset, Y = GetCoordinateFromTick(cTicks[i], effectiveSize) - labels[i].DesiredSize.Height / 2 };
                     }
                     break;
                 case AxisOrientation.Left:
                     for (int i = 0; i < labels.Length; i++)
                     {
-                        labels[i].RenderTransform = new TranslateTransform { X = maxLabelWidth - labels[i].DesiredSize.Width, Y = GetCoordinateFromTick(cTicks[i], effectiveSize) - labels[i].DesiredSize.Height / 2 };
+                        labels[i].RenderTransform = new TranslateTransform { X = maxLabelWidth - labels[i].DesiredSize.Width - LabelOffset, Y = GetCoordinateFromTick(cTicks[i], effectiveSize) - labels[i].DesiredSize.Height / 2 };
                     }
                     break;
             }
