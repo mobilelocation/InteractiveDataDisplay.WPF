@@ -82,7 +82,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="Ticks"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty TicksProperty =
-            DependencyProperty.Register("Ticks", typeof(IEnumerable<double>), typeof(Axis), new PropertyMetadata(new double[0]));
+            DependencyProperty.Register("Ticks", typeof(IEnumerable<double>), typeof(Axis), new PropertyMetadata(new double[0], InvalidateMeasure));
 
         /// <summary>
         /// Gets or sets the range of values on axis in plot coordinates.
@@ -101,15 +101,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="Range"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty RangeProperty =
-            DependencyProperty.Register("Range", typeof(Range), typeof(Axis), new PropertyMetadata(new Range(0, 1),
-                (o, e) =>
-                {
-                    Axis axis = (Axis)o;
-                    if (axis != null)
-                    {
-                        axis.InvalidateMeasure();
-                    }
-                }));
+            DependencyProperty.Register("Range", typeof(Range), typeof(Axis), new PropertyMetadata(new Range(0, 1), InvalidateMeasure));
 
 
         /// <summary>
@@ -127,15 +119,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="AxisOrientation"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty AxisOrientationProperty =
-            DependencyProperty.Register("AxisOrientation", typeof(AxisOrientation), typeof(Axis), new PropertyMetadata(AxisOrientation.Bottom,
-                (o, e) =>
-                {
-                    Axis axis = (Axis)o;
-                    if (axis != null)
-                    {
-                        axis.InvalidateMeasure();
-                    }
-                }));
+            DependencyProperty.Register("AxisOrientation", typeof(AxisOrientation), typeof(Axis), new PropertyMetadata(AxisOrientation.Bottom, InvalidateMeasure));
 
         /// <summary>
         /// Gets or sets a flag indicating whether the axis is reversed or not.
@@ -152,16 +136,8 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="IsReversed"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty IsReversedProperty =
-            DependencyProperty.Register("IsReversed", typeof(bool), typeof(Axis), new PropertyMetadata(false,
-                (o, e) =>
-                {
-                    Axis axis = (Axis)o;
-                    if (axis != null)
-                    {
-                        axis.InvalidateMeasure();
-                    }
-                }));
-
+            DependencyProperty.Register("IsReversed", typeof(bool), typeof(Axis), new PropertyMetadata(false, InvalidateMeasure));
+               
         /// <summary>
         /// Gets or sets <see cref="DataTransform"/> for an axis.
         /// </summary>
@@ -180,15 +156,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="DataTransform"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty DataTransformProperty =
-            DependencyProperty.Register("DataTransform", typeof(DataTransform), typeof(Axis), new PropertyMetadata(null,
-                (o, e) =>
-                {
-                    Axis axis = (Axis)o;
-                    if (axis != null)
-                    {
-                        axis.InvalidateMeasure();
-                    }
-                }));
+            DependencyProperty.Register("DataTransform", typeof(DataTransform), typeof(Axis), new PropertyMetadata(null, InvalidateMeasure));
 
         /// <summary>
         /// Gets or sets <see cref="ILabelProvider"/> for an axis.
@@ -208,15 +176,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="LabelProvider"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty LabelProviderProperty =
-            DependencyProperty.Register("LabelProvider", typeof(ILabelProvider), typeof(Axis), new PropertyMetadata(new LabelProvider(),
-                (o, e) =>
-                {
-                    Axis axis = (Axis)o;
-                    if (axis != null)
-                    {
-                        axis.InvalidateMeasure();
-                    }
-                }));
+            DependencyProperty.Register("LabelProvider", typeof(ILabelProvider), typeof(Axis), new PropertyMetadata(new LabelProvider(), InvalidateMeasure));
 
         /// <summary>
         /// Gets or sets <see cref="TicksProvider"/> for an axis.
@@ -237,15 +197,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="TicksProvider"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty TicksProviderProperty =
-            DependencyProperty.Register("TicksProvider", typeof(TicksProvider), typeof(Axis), new PropertyMetadata(new TicksProvider(),
-                (o, e) =>
-                {
-                    Axis axis = (Axis)o;
-                    if (axis != null)
-                    {
-                        axis.InvalidateMeasure();
-                    }
-                }));
+            DependencyProperty.Register("TicksProvider", typeof(ITicksProvider), typeof(Axis), new PropertyMetadata(new TicksProvider(), InvalidateMeasure));
 
         /// <summary>
         /// Gets or sets the brush for labels and ticks of axis
@@ -299,15 +251,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="TickLength"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty TickLengthProperty =
-            DependencyProperty.Register("TickLength", typeof(double), typeof(Axis), new PropertyMetadata(DefaultTickLength,
-                (o, e) =>
-                {
-                    Axis axis = (Axis)o;
-                    if (axis != null)
-                    {
-                        axis.InvalidateMeasure();
-                    }
-                }));
+            DependencyProperty.Register("TickLength", typeof(double), typeof(Axis), new PropertyMetadata(DefaultTickLength, InvalidateMeasure));
 
         /// <summary>
         /// Gets or sets the Tick width.
@@ -325,15 +269,7 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="TickWidth"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty TickWidthProperty =
-            DependencyProperty.Register("TickWidth", typeof(double), typeof(Axis), new PropertyMetadata(DefaultTickWidth,
-                (o, e) =>
-                {
-                    Axis axis = (Axis)o;
-                    if (axis != null)
-                    {
-                        axis.InvalidateMeasure();
-                    }
-                }));
+            DependencyProperty.Register("TickWidth", typeof(double), typeof(Axis), new PropertyMetadata(DefaultTickWidth, InvalidateMeasure));
 
         /// <summary>
         /// Gets or sets a value indicating whether the ticks should be rendered or not.
@@ -770,6 +706,15 @@ namespace InteractiveDataDisplay.WPF
             get
             {
                 return (AxisOrientation == AxisOrientation.Bottom || AxisOrientation == AxisOrientation.Top);
+            }
+        }
+
+        private static void InvalidateMeasure(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        {
+            Axis axis = (Axis)o;
+            if (axis != null)
+            {
+                axis.InvalidateMeasure();
             }
         }
     }

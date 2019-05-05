@@ -10,7 +10,7 @@ namespace InteractiveDataDisplay.WPF
     /// <summary>
     /// Provides mechanisms to generate minor ticks displayed on an axis. 
     /// </summary>
-    public class MinorTicksProvider
+    public class MinorTicksProvider : IMinorTicksProvider
     {
         /// <summary>
         /// Default ticks count for provider.
@@ -34,7 +34,7 @@ namespace InteractiveDataDisplay.WPF
             get { return ticksCount; }
             set { ticksCount = value; }
         }
-        
+
         /// <summary>
         /// Generates minor ticks for given array of major ticks and range.
         /// </summary>
