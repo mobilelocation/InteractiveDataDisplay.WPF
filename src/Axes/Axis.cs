@@ -479,33 +479,10 @@ namespace InteractiveDataDisplay.WPF
                     Children.Add(labels[i]);
                 }
 
-                LineGeometry axis_line = new LineGeometry();
-                majorTicksGeometry.Children.Add(axis_line);
-
-                switch(AxisOrientation)
+                double[] minorTicks = TicksProvider.GetMinorTicks(Range);
+                if (minorTicks != null)
                 {
-                    case AxisOrientation.Top:
-                        axis_line.StartPoint = new Point(GetCoordinateFromTick(cTicks[0], axisSize), TickLength);
-                        axis_line.EndPoint = new Point(GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize), TickLength);
-                        break;
-                    case AxisOrientation.Bottom:
-                        axis_line.StartPoint = new Point(GetCoordinateFromTick(cTicks[0], axisSize), 0);
-                        axis_line.EndPoint = new Point(GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize), 0);
-                        break;
-                    case AxisOrientation.Left:
-                        axis_line.StartPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[0], axisSize));
-                        axis_line.EndPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
-                        break;
-                    case AxisOrientation.Right:
-                        axis_line.StartPoint = new Point(0, GetCoordinateFromTick(cTicks[0], axisSize));
-                        axis_line.EndPoint = new Point(0, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
-                        break;
-                }
-
-                if (drawMinorTicks)
-                {
-                    double[] minorTicks = TicksProvider.GetMinorTicks(Range);
-                    if (minorTicks != null)
+                    if (drawMinorTicks)
                     {
                         for (int j = 0; j < minorTicks.Length; j++)
                         {
@@ -526,12 +503,43 @@ namespace InteractiveDataDisplay.WPF
                     }
                 }
 
+                // Draw the axis line.
+                ticks = IsNullOrEmpty(minorTicks) ? cTicks : minorTicks;
+                LineGeometry axis_line = DrawAxisLine(ticks, axisSize);
+                majorTicksGeometry.Children.Add(axis_line);
+
                 majorTicksPath.Data = majorTicksGeometry;
                 minorTicksPath.Data = minorTicksGeometry;
 
                 if (!drawMinorTicks)
                     drawMinorTicks = true;
             }
+        }
+
+        protected LineGeometry DrawAxisLine(double []cTicks, Size axisSize)
+        {
+            LineGeometry axis_line = new LineGeometry();
+
+            switch (AxisOrientation)
+            {
+                case AxisOrientation.Top:
+                    axis_line.StartPoint = new Point(GetCoordinateFromTick(cTicks[0], axisSize), TickLength);
+                    axis_line.EndPoint = new Point(GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize), TickLength);
+                    break;
+                case AxisOrientation.Bottom:
+                    axis_line.StartPoint = new Point(GetCoordinateFromTick(cTicks[0], axisSize), 0);
+                    axis_line.EndPoint = new Point(GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize), 0);
+                    break;
+                case AxisOrientation.Left:
+                    axis_line.StartPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[0], axisSize));
+                    axis_line.EndPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
+                    break;
+                case AxisOrientation.Right:
+                    axis_line.StartPoint = new Point(0, GetCoordinateFromTick(cTicks[0], axisSize));
+                    axis_line.EndPoint = new Point(0, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
+                    break;
+            }
+            return axis_line;
         }
 
         /// <summary>
@@ -758,6 +766,11 @@ namespace InteractiveDataDisplay.WPF
         {
             return ticks == null || ticks.Count() == 0;
         }
+
+        //private static bool IsNullOrEmpty(double[] ticks)
+        //{
+        //    return ticks == null || ticks.Count() == 0;
+        //}
 
         private static void InvalidateMeasure(DependencyObject o, DependencyPropertyChangedEventArgs e)
         {
