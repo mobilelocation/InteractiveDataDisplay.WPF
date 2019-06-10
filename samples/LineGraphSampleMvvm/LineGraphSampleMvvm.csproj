@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F09EF949-BE69-4C89-80AE-EAAABD03B805}</ProjectGuid>
+    <ProjectGuid>{305AC720-E06B-4DC1-A34F-EE1F9CEA4998}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>LineGraphSampleMvvm</RootNamespace>
