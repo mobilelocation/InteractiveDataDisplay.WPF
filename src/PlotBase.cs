@@ -768,7 +768,7 @@ namespace InteractiveDataDisplay.WPF
         /// </summary>
         /// <param name="plotBounds">The range of {x,y} plot coordinates that must fit into the screen.</param>
         /// <param name="screenSize">The width and height of the screen that must fit plotBounds.</param>
-        internal void Fit(DataRect plotBounds, Size screenSize)
+        public void Fit(DataRect plotBounds, Size screenSize)
         {
             var padding = AggregatePadding();
             var screenWidth = Math.Max(1.0, screenSize.Width - padding.Left - padding.Right);

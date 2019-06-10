@@ -254,7 +254,8 @@ namespace InteractiveDataDisplay.WPF
         /// Identifies the <see cref="LabelOffset"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty LabelOffsetProperty =
-            DependencyProperty.Register("LabelOffset", typeof(double), typeof(Axis), new PropertyMetadata(DefaultLabelOffset, InvalidateMeasure));
+            DependencyProperty.Register("LabelOffset", typeof(double), typeof(Axis),
+                new PropertyMetadata(DefaultLabelOffset, InvalidateMeasure));
 
 
         /// <summary>
@@ -503,43 +504,12 @@ namespace InteractiveDataDisplay.WPF
                     }
                 }
 
-                // Draw the axis line.
-                ticks = IsNullOrEmpty(minorTicks) ? cTicks : minorTicks;
-                LineGeometry axis_line = DrawAxisLine(ticks, axisSize);
-                majorTicksGeometry.Children.Add(axis_line);
-
                 majorTicksPath.Data = majorTicksGeometry;
                 minorTicksPath.Data = minorTicksGeometry;
 
                 if (!drawMinorTicks)
                     drawMinorTicks = true;
             }
-        }
-
-        protected LineGeometry DrawAxisLine(double []cTicks, Size axisSize)
-        {
-            LineGeometry axis_line = new LineGeometry();
-
-            switch (AxisOrientation)
-            {
-                case AxisOrientation.Top:
-                    axis_line.StartPoint = new Point(GetCoordinateFromTick(cTicks[0], axisSize), TickLength);
-                    axis_line.EndPoint = new Point(GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize), TickLength);
-                    break;
-                case AxisOrientation.Bottom:
-                    axis_line.StartPoint = new Point(GetCoordinateFromTick(cTicks[0], axisSize), 0);
-                    axis_line.EndPoint = new Point(GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize), 0);
-                    break;
-                case AxisOrientation.Left:
-                    axis_line.StartPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[0], axisSize));
-                    axis_line.EndPoint = new Point(TickLength, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
-                    break;
-                case AxisOrientation.Right:
-                    axis_line.StartPoint = new Point(0, GetCoordinateFromTick(cTicks[0], axisSize));
-                    axis_line.EndPoint = new Point(0, GetCoordinateFromTick(cTicks[cTicks.Length - 1], axisSize));
-                    break;
-            }
-            return axis_line;
         }
 
         /// <summary>
@@ -650,7 +620,7 @@ namespace InteractiveDataDisplay.WPF
             }
             else
             {
-                availableSize.Width = majorTicksPath.DesiredSize.Width + maxLabelWidth;
+                availableSize.Width = majorTicksPath.DesiredSize.Width + maxLabelWidth + LabelOffset;
             }
 
             return availableSize;

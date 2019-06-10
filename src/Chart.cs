@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Markup;
 using System.ComponentModel;
 using System.Windows.Data;
+using System.Collections.Generic;
 
 namespace InteractiveDataDisplay.WPF
 {
@@ -411,6 +412,77 @@ namespace InteractiveDataDisplay.WPF
         /// </summary>
         public static readonly DependencyProperty YAxisLabelProviderProperty =
             DependencyProperty.Register("YAxisLabelProvider", typeof(ILabelProvider), typeof(Chart), new PropertyMetadata(new LabelProvider()));
+
+        /// <summary>
+        /// Gets or sets a set of double values displayed as axis ticks.
+        /// </summary>
+        [Browsable(false)]
+        public IEnumerable<double> XAxisTicks
+        {
+            get { return (IEnumerable<double>)GetValue(XAxisTicksProperty); }
+            set { SetValue(XAxisTicksProperty, value); }
+        }
+
+        /// <summary>Identify <see cref="Ticks"/> property</summary>
+        public static readonly DependencyProperty XAxisTicksProperty =
+            DependencyProperty.Register("XAxisTicks", typeof(IEnumerable<double>), typeof(Chart), new PropertyMetadata(new double[0]));
+
+        /// <summary>
+        /// Gets or sets a set of double values displayed as axis ticks.
+        /// </summary>
+        [Browsable(false)]
+        public IEnumerable<double> YAxisTicks
+        {
+            get { return (IEnumerable<double>)GetValue(YAxisTicksProperty); }
+            set { SetValue(YAxisTicksProperty, value); }
+        }
+
+        /// <summary>Identify <see cref="Ticks"/> property</summary>
+        public static readonly DependencyProperty YAxisTicksProperty =
+            DependencyProperty.Register("YAxisTicks", typeof(IEnumerable<double>), typeof(Chart), new PropertyMetadata(new double[0]));
+
+        /// <summary>
+        /// This is the X offset of the axis from the top left corner of the chart
+        /// </summary>
+        [Category("InteractiveDataDisplay")]
+        public double XOrigin
+        {
+            get { return (double)GetValue(XOriginProperty); }
+            set { SetValue(XOriginProperty, value); }
+        }
+
+        /// <summary>Identifies <see cref="XOrigin"/> dependency property</summary>
+        public static readonly DependencyProperty XOriginProperty =
+            DependencyProperty.Register("XOrigin", typeof(double), typeof(Chart), new PropertyMetadata(0.0));
+
+        /// <summary>
+        /// This is the Y offset of the axis from the top left corner of the chart. 
+        /// </summary>
+        [Category("InteractiveDataDisplay")]
+        public double YOrigin
+        {
+            get { return (double)GetValue(YOriginProperty); }
+            set { SetValue(YOriginProperty, value); }
+        }
+
+        /// <summary>Identifies <see cref="YOrigin"/> dependency property</summary>
+        public static readonly DependencyProperty YOriginProperty =
+            DependencyProperty.Register("YOrigin", typeof(double), typeof(Chart), new PropertyMetadata(0.0));
+
+        /// <summary>
+        /// This is the offset of the left axis from the left edge of the chart. This allows us to move the left
+        /// axis in the chart.
+        /// </summary>
+        [Category("InteractiveDataDisplay")]
+        public double LeftAxisOffset
+        {
+            get { return (double)GetValue(LeftAxisOffsetProperty); }
+            set { SetValue(LeftAxisOffsetProperty, value); }
+        }
+
+        /// <summary>Identifies <see cref="XOrigin"/> dependency property</summary>
+        public static readonly DependencyProperty LeftAxisOffsetProperty =
+            DependencyProperty.Register("LeftAxisOffset", typeof(double), typeof(Chart), new PropertyMetadata(0.0));
 
     }
 }

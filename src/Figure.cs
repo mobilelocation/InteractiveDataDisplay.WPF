@@ -96,6 +96,49 @@ namespace InteractiveDataDisplay.WPF
             DependencyProperty.Register("ExtraPadding", typeof(Thickness), typeof(Figure), new PropertyMetadata(new Thickness()));
 
         /// <summary>
+        /// This is the offset of the left axis. 
+        /// </summary>
+        [Category("InteractiveDataDisplay")]
+        public double LeftAxisOffset
+        {
+            get { return (double)GetValue(LeftAxisOffsetProperty); }
+            set { SetValue(LeftAxisOffsetProperty, value); }
+        }
+
+        /// <summary>Identifies <see cref="XOrigin"/> dependency property</summary>
+        public static readonly DependencyProperty LeftAxisOffsetProperty =
+            DependencyProperty.Register("LeftAxisOffset", typeof(double), typeof(Figure), new PropertyMetadata(0.0, RearrangeLeftAxis));
+
+        /// <summary>
+        /// This is the X offset of the axis. 
+        /// </summary>
+        [Category("InteractiveDataDisplay")]
+        public double XOrigin
+        {
+            get { return (double)GetValue(XOriginProperty); }
+            set { SetValue(XOriginProperty, value); }
+        }
+
+        /// <summary>Identifies <see cref="XOrigin"/> dependency property</summary>
+        public static readonly DependencyProperty XOriginProperty =
+            DependencyProperty.Register("XOrigin", typeof(double), typeof(Figure), new PropertyMetadata(0.0));
+
+        /// <summary>
+        /// This is the Y offset of the axis. 
+        /// </summary>
+        [Category("InteractiveDataDisplay")]
+        public double YOrigin
+        {
+            get { return (double)GetValue(YOriginProperty); }
+            set { SetValue(YOriginProperty, value); }
+        }
+
+        /// <summary>Identifies <see cref="YOrigin"/> dependency property</summary>
+        public static readonly DependencyProperty YOriginProperty =
+            DependencyProperty.Register("YOrigin", typeof(double), typeof(Figure), new PropertyMetadata(0.0));
+
+
+        /// <summary>
         /// Computes padding with maximum values for each side from padding of all children
         /// </summary>
         /// <returns>Padding with maximum values for each side from padding of all children</returns>
@@ -176,7 +219,6 @@ namespace InteractiveDataDisplay.WPF
 
             foreach (var elt in leftElts)
             {
-
                 elt.Measure(availableSize);
                 var ds = elt.DesiredSize;
                 leftRightHeight = Math.Max(leftRightHeight, ds.Height);
@@ -309,13 +351,16 @@ namespace InteractiveDataDisplay.WPF
             double x = 0, y = 0;
 
             //Arranging top elements and setting clip bounds
+            XOrigin = leftWidth;
+            YOrigin = topHeight;
+
             if (topHeight < topHeight2)
             {
                 foreach (var elt in topElts)
                 {
                     double finalHeight = elt.DesiredSize.Height * topHeight / topHeight2;
-                    elt.Arrange(new Rect(leftWidth, y, centerSize.Width, finalHeight));
-                    elt.Clip = new RectangleGeometry { Rect = new Rect(-leftWidth, 0, finalSize.Width, finalHeight) };
+                    elt.Arrange(new Rect(leftWidth - 1, y, centerSize.Width, finalHeight));
+                    elt.Clip = new RectangleGeometry { Rect = new Rect(-leftWidth, 0, finalSize.Width + leftWidth, finalHeight) };
                     y += finalHeight;
                 }
             }
@@ -325,8 +370,8 @@ namespace InteractiveDataDisplay.WPF
                 for (int i = topElts.Length - 1; i > -1; i--)
                 {
                     UIElement elt = topElts[i];
-                    elt.Arrange(new Rect(leftWidth, iy - elt.DesiredSize.Height, centerSize.Width, elt.DesiredSize.Height));
-                    elt.Clip = new RectangleGeometry { Rect = new Rect(-leftWidth, 0, finalSize.Width, elt.DesiredSize.Height) };
+                    elt.Arrange(new Rect(leftWidth - 1, iy - elt.DesiredSize.Height, centerSize.Width, elt.DesiredSize.Height));
+                    elt.Clip = new RectangleGeometry { Rect = new Rect(-leftWidth, 0, finalSize.Width + leftWidth, elt.DesiredSize.Height) };
                     iy -= elt.DesiredSize.Height;
                 }
                 y = topHeight;
@@ -335,22 +380,23 @@ namespace InteractiveDataDisplay.WPF
             // Arranging left elements and setting clip bounds
             if (leftWidth < leftWidth2)
             {
+                x = LeftAxisOffset;
                 foreach (var elt in leftElts)
                 {
                     double finalWidth = elt.DesiredSize.Width * leftWidth / leftWidth2;
-                    elt.Arrange(new Rect(x, topHeight, finalWidth, centerSize.Height));
-                    elt.Clip = new RectangleGeometry { Rect = new Rect(0, -topHeight, finalWidth, finalSize.Height) };
+                    elt.Arrange(new Rect(x, topHeight - 1, finalWidth, centerSize.Height));
+                    elt.Clip = new RectangleGeometry { Rect = new Rect(0, -topHeight, finalWidth, finalSize.Height + topHeight) };
                     x += finalWidth;
                 }
             }
             else
             {
-                double ix = leftWidth;
+                double ix = leftWidth + LeftAxisOffset;
                 for (int i = leftElts.Length - 1; i > -1; i--)
                 {
                     UIElement elt = leftElts[i];
-                    elt.Arrange(new Rect(ix - elt.DesiredSize.Width, topHeight, elt.DesiredSize.Width, centerSize.Height));
-                    elt.Clip = new RectangleGeometry { Rect = new Rect(0, -topHeight, elt.DesiredSize.Width, finalSize.Height) };
+                    elt.Arrange(new Rect(ix - elt.DesiredSize.Width, topHeight - 1, elt.DesiredSize.Width, centerSize.Height));
+                    elt.Clip = new RectangleGeometry { Rect = new Rect(0, -topHeight, elt.DesiredSize.Width, finalSize.Height + topHeight) };
                     ix -= elt.DesiredSize.Width;
                 }
                 x = leftWidth;
@@ -372,7 +418,7 @@ namespace InteractiveDataDisplay.WPF
                 {
                     double finalHeight = elt.DesiredSize.Height * bottomHeight / bottomHeight2;
                     elt.Arrange(new Rect(leftWidth, y, centerSize.Width, finalHeight));
-                    elt.Clip = new RectangleGeometry { Rect = new Rect(-leftWidth, 0, finalSize.Width, finalHeight) };
+                    elt.Clip = new RectangleGeometry { Rect = new Rect(-leftWidth, 0, finalSize.Width + leftWidth, finalHeight) };
                     y += finalHeight;
                 }
             }
@@ -382,7 +428,7 @@ namespace InteractiveDataDisplay.WPF
                 {
                     UIElement elt = bottomElts[i];
                     elt.Arrange(new Rect(leftWidth, y, centerSize.Width, elt.DesiredSize.Height));
-                    elt.Clip = new RectangleGeometry { Rect = new Rect(-leftWidth, 0, finalSize.Width, elt.DesiredSize.Height) };
+                    elt.Clip = new RectangleGeometry { Rect = new Rect(-leftWidth, 0, finalSize.Width + leftWidth, elt.DesiredSize.Height) };
                     y += elt.DesiredSize.Height;
                 }
             }
@@ -394,7 +440,7 @@ namespace InteractiveDataDisplay.WPF
                 {
                     double finalWidth = elt.DesiredSize.Width * rightWidth / rightWidth2;
                     elt.Arrange(new Rect(x, topHeight, finalWidth, centerSize.Height));
-                    elt.Clip = new RectangleGeometry { Rect = new Rect(0, -topHeight, finalWidth, finalSize.Height) };
+                    elt.Clip = new RectangleGeometry { Rect = new Rect(0, -topHeight, finalWidth, finalSize.Height + topHeight) };
                     x += finalWidth;
                 }
             }
@@ -404,7 +450,7 @@ namespace InteractiveDataDisplay.WPF
                 {
                     UIElement elt = rightElts[i];
                     elt.Arrange(new Rect(x, topHeight, elt.DesiredSize.Width, centerSize.Height));
-                    elt.Clip = new RectangleGeometry { Rect = new Rect(0, -topHeight, elt.DesiredSize.Width, finalSize.Height) };
+                    elt.Clip = new RectangleGeometry { Rect = new Rect(0, -topHeight, elt.DesiredSize.Width, finalSize.Height + topHeight) };
                     x += elt.DesiredSize.Width;
                 }
             }
@@ -437,6 +483,15 @@ namespace InteractiveDataDisplay.WPF
                 throw new ArgumentNullException("element");
 
             return (Placement)element.GetValue(PlacementProperty);
+        }
+
+        private static void RearrangeLeftAxis(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            Figure figure = (Figure)d;
+            if (figure != null)
+            {
+                figure.InvalidateVisual();
+            }
         }
     }
 

@@ -26,7 +26,6 @@ namespace InteractiveDataDisplay.WPF
         {
             XDataTransform = new IdentityDataTransform();
             YDataTransform = new IdentityDataTransform();
-            Ticks = new double[0];
             DefaultStyleKey = typeof(PlotAxis);
             Loaded += PlotAxisLoaded;
             Unloaded += PlotAxisUnloaded;
